@@ -1,6 +1,6 @@
 const { json } = require('express')
 const post = require('../model/post')
-
+const poinRating = require('../model/poinRating')
 
 class postController{
 
@@ -39,8 +39,20 @@ class postController{
     // xóa bài viết
    async deletePost (req,res){
         try {
-            await post.deleteOne({_id: req.params.id} )
-            .then(()=>console.log('xoa thanh cong'))
+          const result=  await post.deleteOne({_id: req.params.id} )
+          if(result.deletedCount>0){
+            await this.deleteAllPoinRatingWithPost(req.params.id);
+            res.json('Xóa thành công')
+          }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    // xóa bỏ các bài đánh giá nếu như bài viết bị xóa bỏ
+    async deleteAllPoinRatingWithPost(idPost){
+        try {
+            await poinRating.deleteMany({id_post:idPost})
         } catch (error) {
             console.log(error)
         }
@@ -63,9 +75,10 @@ class postController{
     }
    }
 
+   // lấy ra bài viết theo thể loại
    async getPostType(req, res) {
     try {
-        const posts = await post.find({ category: req.params.type });
+        const posts = await post.find({ category: req.params.type }).sort({ createdAt: -1 });
         res.json(posts);
     } catch (error) {
         console.log(error);
@@ -126,6 +139,37 @@ class postController{
         }
       
     }
+
+    async getSuggestPost(req, res){
+        try {
+            const suggestPosts= await post.find({category:req.params.kind, _id:{$ne:req.params.id} })
+            if (suggestPosts){
+                res.json(suggestPosts)
+            }else{
+                res.json('ko tim thay dl')
+            }
+        } catch (error) {
+            console.log(error)
+        }
+        
+    }
+
+
+    async getPostByKeyWord(req, res){
+        try {
+            const keyword= new RegExp(req.params.keyword,'i')
+            const listPost= await post.find({
+                $or:[
+                    {title:keyword},
+                    {category:keyword}
+                ]
+            });
+            listPost.length>0? res.json(listPost) : res.json('Không tìm thấy dữ liệu phù hợp')
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
 }
 
 module.exports = new postController()

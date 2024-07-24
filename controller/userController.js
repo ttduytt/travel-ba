@@ -106,6 +106,18 @@ async restoreUser (req, res){
         console.log(error)
      }
    }
+
+    pushNotification (req,res){
+        try {
+            if (req.user){
+                const user= req.user
+                res.json({user})
+            }
+        } catch (error) {
+            console.log(error)
+        }
+   }
+
 }
 
 module.exports = new userController()

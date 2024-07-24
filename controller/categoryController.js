@@ -19,6 +19,17 @@ class categoryController {
         console.log(error)
      }
     }
+
+    async Deletecategory (req, res){
+        try {
+           const result= await category.deleteOne({_id:req.params.id})
+           if(result.deletedCount>0){
+            res.json('xóa thành công')
+           }
+        } catch (error) {
+            console.log(error)
+        }
+    }
 }
 
 module.exports= new categoryController()

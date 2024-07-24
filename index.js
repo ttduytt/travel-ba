@@ -5,8 +5,7 @@ const port = 3000;
 const cookieParser = require('cookie-parser');
 const routes = require('./routes');
 const cors= require('cors');
-const bodyParser = require('body-parser');
-const AWS = require('aws-sdk');
+
 
 
 // Middleware để xử lý JSON và các middleware khác
